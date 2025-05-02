@@ -167,6 +167,38 @@ setTimeout(sigmoid, 1000, 1);
 
 ---
 
+
+# Why Hard?
+
+<div h-2 />
+
+A simple string concatenation function:
+```js {*}{lines:false,class:'w-92'}
+function concat(arr) {
+  let res = "";
+  for (let i = 0; i < arr.length; i++) {
+    res += arr[i];
+  }
+  return res;
+}
+```
+
+<div text-sm op-60 mt-18>
+
+Source: [Land ahoy: leaving the Sea of Nodes](https://v8.dev/blog/leaving-the-sea-of-nodes) by the V8 team
+
+</div>
+
+<img src="https://v8.dev/_img/leaving-the-sea-of-nodes/Sea-of-Nodes-array-concat.png" absolute right-0 top-0 h-full z--1 />
+
+<style scoped>
+:deep(.slidev-code) {
+  --slidev-code-font-size: 14px;
+}
+</style>
+
+---
+
 # Previous Work
 
 Rollup, Terser, UglifyJS, Google Closure Compiler
@@ -660,7 +692,7 @@ obj["foo"]++;
 
 <div mt-6 italic op-80 text-sm>
 
-\* Input files are bundled by [Rollup]{.font-mono} <br>
+\* Input files are bundled by [Rollup]{.font-mono} with its tree-shaking ON <br>
 \* Minified by [oxc-minifier]{.font-mono} and Gzipped with compression level 6.
 
 </div>

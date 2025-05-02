@@ -2,4 +2,4 @@
 
 - **Working in progress**
 - Online slides: https://kermanx.com/tree-shaker-2025-5-slides/
-- The project: https://github.com/KermanX/tree-shaker
+- The project: https://github.com/kermanx/tree-shaker
