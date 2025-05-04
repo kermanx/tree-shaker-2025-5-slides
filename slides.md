@@ -20,9 +20,13 @@ lineNumbers: true
 ```mermaid
 graph LR;
 
-A[体积减小] --> B[网页加载速度提升] --> C[用户留存率提升] --> D[经济效益]
-A --> E[节约带宽] ---> D
+A(体积减小) --> B(网页加载速度提升) --> C(用户留存率提升) --> D(经济效益)
+A --> E(节约带宽) ---> D
 ```
+
+- HTML/CSS/Media: 压缩技术成熟
+- JS: **体积大，阻塞加载⭐**
+
 
 ---
 dragPos:
@@ -36,6 +40,10 @@ dragPos:
 <div v-drag="'title'">
 
 # The Levels
+
+<div mt--5 op-60>
+of JavaScript code size optimization
+</div>
 
 </div>
 
@@ -71,7 +79,7 @@ Tree-shaking，静态分析程序，优化不必要的代码
 <div v-drag="'grammar'">
 
 **Syntax Level** <br>
-Minifier\*，上下文无关，删除空格、重命名变量等
+Minifier[*]{.text-red}，上下文无关，删除空格、重命名变量等
 
 </div>
 <div v-drag="'binary'">
@@ -80,9 +88,9 @@ Minifier\*，上下文无关，删除空格、重命名变量等
 Gzip，编程语言无关，减小传输体积
 
 </div>
-<div v-drag="'note'" op-50 text-sm>
+<div v-drag="'note'" text-sm>
 
-\* 许多 Minifier 也会做简单的 Semantic Level 优化
+[*]{.text-red} [许多 Minifier 也会做简单的 Semantic Level 优化]{.op-50}
 
 </div>
 
@@ -128,12 +136,11 @@ Gzip，编程语言无关，减小传输体积
 </div>
 </div>
 
-<div grid grid-cols-2 gap-4>
+<div mt-4 grid grid-cols-2 gap-4>
 <div>
 
 ```js {*}{lines:false}
-let counter = 0;
-const key = () => counter++;
+const key = () => Math.random() > 0.5;
 const obj = {
   __proto__: {
     [key()]: 1,
@@ -153,7 +160,6 @@ function cache(fn) {
   const cache = {};
   return x => cache[x] ??= fn(x);
 }
-
 const sigmoid = cache(
   x => 1 / (1 + Math.exp(-x))
 );
@@ -172,7 +178,7 @@ setTimeout(sigmoid, 1000, 1);
 
 <div h-2 />
 
-A simple string concatenation function:
+一个简单的字符串拼接函数:
 ```js {*}{lines:false,class:'w-92'}
 function concat(arr) {
   let res = "";
@@ -201,7 +207,7 @@ Source: [Land ahoy: leaving the Sea of Nodes](https://v8.dev/blog/leaving-the-se
 
 # Previous Work
 
-Rollup, Terser, UglifyJS, Google Closure Compiler
+[Rollup](https://rollupjs.org/), [Terser](https://terser.org/), [UglifyJS](https://github.com/mishoo/UglifyJS/), [Google Closure Compiler](https://github.com/google/closure-compiler)
 
 缺陷：
 
@@ -217,20 +223,44 @@ Previous Work{.sect}
 ## Prepack
 
 - 由 Facebook 推出，于 2021 年废弃
-- 思路：按照标准执行 JS 代码，收集副作用并重新生成 JS 代码
 
-```js
-for (let a = 1; a < 10; a++)
-  console.log(a)
+- 
+
+```mermaid {class:'ml-4 mt--7'}
+graph LR;
+A(原始代码) -->|按照JS标准执行| B(副作用序列) -->|序列化| C(优化后的代码)
 ```
-转化为
-```js
+
+- 
+
+<div ml-5 mt--6 mb-2 flex gap-4>
+
+```js {*}{lines:false,class:'w-64'}
+for (let a = 1; a < 10; a++) {
+  console.log(a)
+}
+```
+
+<div i-carbon-arrow-right w-20 text-4xl op-60 mt-4 />
+
+```js {*}{lines:false,class:'w-64'}
 console.log(1);
 console.log(2);
-// ... 10
+// ... x10
 ```
 
-- 失败原因：内部实现过于复杂；要求整个运行环境已知，无法实际使用
+</div>
+
+- 1. 内部实现过于复杂
+  2. 要求整个运行环境已知，无法实际使用
+
+---
+
+改进：
+
+- 做抽象：不拘泥于标准，按照直观的 JS 语义分析代码
+
+- 直接分析 AST 节点的使用情况，而不是收集和序列化副作用
 
 ---
 
@@ -381,6 +411,197 @@ y++;
 
 ---
 
+# The Entity Model
+
+<img src="./assets/Entity.svg" v-drag="[58,65,655,NaN]" />
+
+---
+
+# The "Value"s
+
+<div grid grid-cols-5 gap-4>
+
+<div border="2 #999999 rounded-lg" p-2>
+  <div text-center> Literal </div>
+  <div font-mono text-xs>
+  String("abc") <br>
+  Number(42) <br>
+  BigInt(42n) <br>
+  Boolean(true) <br>
+  Symbol(1) <br>
+  Undefined <br>
+  Null <br>
+  </div>
+</div>
+
+<div border="2 #999999 rounded-lg" p-2>
+  <div text-center> Primitive </div>
+  <div font-mono text-xs>
+  String <br>
+  Number <br>
+  BigInt <br>
+  Boolean <br>
+  Symbol <br>
+  Mixed
+  </div>
+</div>
+
+<div flex flex-col gap-2>
+<div border="2 #999999 rounded-lg" p-2>
+  <div text-center> Object </div>
+</div>
+<div border="2 #999999 rounded-lg" p-2>
+  <div text-center> Array </div>
+</div>
+<div border="2 #999999 rounded-lg" p-2>
+  <div text-center> Function </div>
+</div>
+<div border="2 #999999 rounded-lg" p-2>
+  <div text-center> React VNode </div>
+</div>
+</div>
+
+<div flex flex-col gap-2>
+<div border="2 #999999 rounded-lg" p-2>
+  <div text-center> ⊤ Unknown </div>
+</div>
+<div border="2 #999999 rounded-lg" p-2>
+  <div text-center> ∪ Union </div>
+</div>
+<div border="2 #999999 rounded-lg" p-2>
+  <div text-center> ⊥ Never </div>
+</div>
+<div flex-grow />
+</div>
+
+</div>
+
+<div grid grid-cols-4 gap-4 mt-4 op-60>
+<div /><div />
+<div border="2 #999999 rounded-lg" p-2>
+  <div text-center> Arguments </div>
+</div>
+<div border="2 #999999 rounded-lg" p-2>
+  <div text-center> Logical Result </div>
+</div>
+</div>
+
+复杂度与精确性的权衡
+
+---
+
+# Object::get_property
+
+```mermaid {scale:0.3}
+graph TB;
+Start((Start)) --> A{isLiteralKey}
+A -->|Yes| C{literalKeyedProperties}
+C -->|Yes| D("getValue")
+C -->|No| E("getUnknownKeyedProperties")
+A -->|No| B("Union[All]")
+
+```
+
+---
+
+# The Object Model
+
+<style>
+h1 {
+  font-size: 1.5rem;
+  margin: 0 !important;
+  margin-top: -28px !important;
+}
+</style>
+
+<div relative flex gap-12>
+<div>
+<div text-center>
+<codicon-key />
+Key Space
+</div>
+<div relative flex flex-col gap-2 border="2 rounded-xl #0072B2 op-60" p-2>
+<div flex flex-col gap-2 border="2 dashed rounded-lg  #999999" p-2>
+<div text-xs ml-.5 mt--2 mb--2 font-mono font-bold op-60 text-center>
+Literal Keyed
+</div>
+<div v-for="i in 3" border="2 #D55E00 rounded-lg op-60" px-2 h-16 :data-arrow-from="i" font-mono flex items-center justify-center pb-1>
+  "key{{i}}"
+</div>
+</div>
+<div flex-grow border="2 #999999 rounded-lg " px-2 data-arrow-from="rest"> 
+<div text-xs ml-.5 font-mono font-bold op-60 text-center>
+Rest Properties
+</div>
+<div font-mono flex items-center justify-center mb-2 py-2 font-bold>
+  ...
+</div>
+</div>
+<div absolute bottom-0 left-0 right--.3 h-10 data-arrow-from="unknown" />
+</div>
+</div>
+
+<div flex flex-col gap-2 w-62>
+<div text-center mb--2>
+<codicon-symbol-field />
+Value Space
+</div>
+
+<PropertyValue data-arrow-to="1" />
+<PropertyValue data-arrow-to="2" />
+<PropertyValue data-arrow-to="3" />
+<PropertyValue :kind="2" data-arrow-to="rest" />
+<PropertyValue :kind="3" data-arrow-to="unknown" />
+
+<ArrowConn arrow-id="1" color="#E69E66"/>
+<ArrowConn arrow-id="2" color="#E69E66"/>
+<ArrowConn arrow-id="3" color="#E69E66"/>
+<ArrowConn arrow-id="rest" color="#999999"/>
+<ArrowConn arrow-id="unknown" color="#66AAD1"/>
+
+</div>
+
+
+<div flex flex-col gap-2 ml--2>
+<div text-center mb--2>
+<codicon-symbol-class />
+Prototype
+</div>
+<div relative text-xs leading-3 flex text-center items-center>
+  <div border="2 #009E73 op-60" rounded-lg p-1 pb-2 flex flex-col items-center w-16>
+    <carbon-null-sign block my-1 />
+    Null or<br>Implicit
+  </div>
+  <div text-11 mt--2 op-50 origin-center scale-x-60 font-bold> / </div>
+  <div border="2 #009E73 op-60" rounded-lg p-1 pb-2 flex flex-col items-center w-16>
+    <carbon-object block my-1 />
+    Custom<br>Object
+  </div>
+  <div text-11 mt--2 op-50 origin-center scale-x-60 font-bold> / </div>
+  <div border="2 #009E73 op-60" rounded-lg p-1 pb-2 flex flex-col items-center w-16>
+    <carbon-help block my-1 />
+    Unknown<br>Value
+  </div>
+</div>
+
+<div text-center mb--2 mt-4>
+<codicon-list-unordered />
+Metadata
+</div>
+<div flex flex-col gap-2 text-xs text-center>
+<div border="2 rounded-lg #999999 op-80" px-2 py-1> Consumed Flag </div>
+<div border="2 rounded-lg #999999 op-80" px-2 py-1> Mangling Group ID </div>
+<div border="2 rounded-lg #999999 op-80" px-2 py-1> Control-flow Scope ID </div>
+<div border="2 rounded-lg #999999 op-80" px-2 py-1> ... </div>
+
+</div>
+</div>
+
+</div>
+
+
+---
+
 ## Optimizer{.sect} 死分支消除
 
 <div fixed left-0 top-6>
@@ -451,7 +672,7 @@ if (!cond) B;
 <div flex gap-8>
 <div>
 
-```js {*}{lines:false,class:'w-64'}
+```js {*}{lines:false,class:'w-68'}
 function f(cond, callback) {
   if (cond) {
     callback();
@@ -459,11 +680,7 @@ function f(cond, callback) {
     console.log("else");
   }
 }
-```
 
-<div mt-4 italic op-80 text-sm> All usages: </div>
-
-```js {*}{lines:false,class:'w-64 mt--4'}
 f(truthyValue, pureFunction);
 f(falsyValue, anyFunction);
 ```
@@ -471,28 +688,53 @@ f(falsyValue, anyFunction);
 </div>
 <div>
 
-<div i-carbon-arrow-right w-20 text-4xl op-60 mt-4 />
+<div i-carbon-arrow-right w-12 text-4xl op-60 mt-4 />
 
 </div>
 <div>
 
-```js {*}{lines:false,class:'w-64'}
+```js {*}{lines:false,class:'w-68'}
 function f() {
 	console.log("else");
 }
+
+f();
 ```
 
-<div>
-
-TODO:
-
+<div mt-10>
+如果整个函数调用被删除，<br>
+则其对应的执行情况无需被考虑。
 </div>
+
 </div>
 </div>
 
 ---
 
+## Optimizer{.sect} 死分支消除
 
+<div>
+After the main analysis:
+</div>
+
+```txt {*}{lines:false}
+branchWorkList = all executed branches
+nodeWorkList = all conditional nodes
+changed = true
+while changed:
+  for B in branchWorkList:
+    if B's closest parent function call is preserved:
+      if the opposite of B is not pure:
+        preserve B's possibility
+        remove B from branchWorkList
+
+  changed = false
+  for N in nodeWorkList:
+    if N may enter both consequent and alternative:
+      consume N's all test values
+      remove N from nodeWorkList
+      changed = true
+```
 
 ---
 
@@ -596,9 +838,9 @@ const c = a === b;
 
 <v-clicks at="0">
 
-- `a`: String("hello") <Deps float-right>atom(1)</Deps>
-- <code>b<sub>1</sub></code>: String("hello") <Deps float-right>atom(2)</Deps>
-<br> <code>b<sub>2</sub></code>: String("world") <Deps float-right>atom(3)</Deps>
+- `a`: String("hello") <Deps float-right><span><span text-dep>NOMANGLE</span>(<Dep>atom(1)</Dep>)</span></Deps>
+- <code>b<sub>1</sub></code>: String("hello") <Deps float-right><span><span text-dep>NOMANGLE</span>(<Dep>atom(2)</Dep>)</span></Deps>
+<br> <code>b<sub>2</sub></code>: String("world") <Deps float-right><span><span text-dep>NOMANGLE</span>(<Dep>atom(3)</Dep>)</span></Deps>
 <br> `b`: Union\[<Dep><code>b<sub>1</sub></code></Dep>, <Dep><code>b<sub>2</sub></code></Dep>\] <Deps float-right></Deps>
 - <code>c<sub>1</sub></code>: Boolean(true) <Deps float-right v-mark.box.red="{at:3}"><span><span text-dep>EQUAL</span>(<Dep>atom(1)</Dep>,<Dep>atom(2)</Dep>)</span></Deps>
 <br> <code>c<sub>1</sub></code>: Boolean(false) <Deps float-right v-mark.box.red="{at:3}"><span><span text-dep>UNEQUAL</span>(<Dep>atom(1)</Dep>,<Dep>atom(3)</Dep>)</span></Deps>
@@ -619,7 +861,7 @@ Possible dependencies for this optimization:
 
 | | |
 | ---- | ---- |
-| <Dep>atom(1)</Dep> | <Dep>atom(1)</Dep> should remain unchanged |
+| <Dep><span text-dep>NOMANGLE</span>(<Dep>atom(1)</Dep>)</Dep> | <Dep>atom(1)</Dep> should remain unchanged |
 | <Dep><span text-dep>EQUAL</span>(<Dep>atom(1)</Dep>,<Dep>atom(2)</Dep>)</Dep> | <Dep>atom(1)</Dep> and <Dep>atom(2)</Dep> should be equal |
 | <Dep><span text-dep>UNEQUAL</span>(<Dep>atom(1)</Dep>,<Dep>atom(2)</Dep>)</Dep> | <Dep>atom(1)</Dep> and <Dep>atom(2)</Dep> should not be equal |
 | <Dep><span text-dep>UNIQUE</span>(<Dep>group(1)</Dep>,<Dep>atom(1)</Dep>)</Dep> | <Dep>atom(1)</Dep> should be unique among <Dep>group(1)</Dep> |
@@ -692,7 +934,7 @@ obj["foo"]++;
 
 <div mt-6 italic op-80 text-sm>
 
-\* Input files are bundled by [Rollup]{.font-mono} with its tree-shaking ON <br>
+\* Input files are bundled by [Rollup]{.font-mono} with its tree-shaking ON. <br>
 \* Minified by [oxc-minifier]{.font-mono} and Gzipped with compression level 6.
 
 </div>

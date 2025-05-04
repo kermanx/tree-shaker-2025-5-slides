@@ -20,6 +20,13 @@ importers:
       vue:
         specifier: ^3.5.13
         version: 3.5.13(typescript@5.8.3)
+    devDependencies:
+      '@iconify-json/codicon':
+        specifier: ^1.2.16
+        version: 1.2.16
+      '@iconify-json/logos':
+        specifier: ^1.2.4
+        version: 1.2.4
 
 packages:
 
@@ -335,6 +342,12 @@ packages:
 
   '@iconify-json/carbon@1.2.8':
     resolution: {integrity: sha512-6xh4YiFBz6qoSnB3XMe23WvjTJroDFXB17J1MbiT7nATFe+70+em1acRXr8hgP/gYpwFMHFc4IvjA/IPTPnTzg==}
+
+  '@iconify-json/codicon@1.2.16':
+    resolution: {integrity: sha512-cGj9ADsnntrNfmfz+yorU9YEwztNO5D5nA1gTzaDxQOCDlcV41IhFfp+T5FC/J2kVoW8h4Y5feJlj6wFzNeiQg==}
+
+  '@iconify-json/logos@1.2.4':
+    resolution: {integrity: sha512-XC4If5D/hbaZvUkTV8iaZuGlQCyG6CNOlaAaJaGa13V5QMYwYjgtKk3vPP8wz3wtTVNVEVk3LRx1fOJz+YnSMw==}
 
   '@iconify-json/ph@1.2.2':
     resolution: {integrity: sha512-PgkEZNtqa8hBGjHXQa4pMwZa93hmfu8FUSjs/nv4oUU6yLsgv+gh9nu28Kqi8Fz9CCVu4hj1MZs9/60J57IzFw==}
@@ -2947,6 +2960,14 @@ snapshots:
   '@floating-ui/utils@0.2.9': {}
 
   '@iconify-json/carbon@1.2.8':
+    dependencies:
+      '@iconify/types': 2.0.0
+
+  '@iconify-json/codicon@1.2.16':
+    dependencies:
+      '@iconify/types': 2.0.0
+
+  '@iconify-json/logos@1.2.4':
     dependencies:
       '@iconify/types': 2.0.0
 
