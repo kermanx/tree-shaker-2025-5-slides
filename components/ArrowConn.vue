@@ -118,13 +118,13 @@ const updateArrowPosition = () => {
     // Determine which element is on the left and which is on the right
     // We compare the left edges for simplicity
     let leftRect, rightRect;
-    if (rectFrom.left < rectTo.left) {
+    // if (rectFrom.left < rectTo.left) {
       leftRect = rectFrom;
       rightRect = rectTo;
-    } else {
-      leftRect = rectTo;
-      rightRect = rectFrom;
-    }
+    // } else {
+    //   leftRect = rectTo;
+    //   rightRect = rectFrom;
+    // }
 
     // Calculate coordinates relative to the viewport (assuming SVG at 0,0)
     // Start point: Middle of the right edge of the left element

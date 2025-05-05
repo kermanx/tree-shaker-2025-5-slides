@@ -7,6 +7,12 @@ mdc: true
 colorSchema: light
 canvasWidth: 800
 lineNumbers: true
+fonts:
+  # mono: 'DM Mono'
+  sans: 'Noto Sans SC'
+  strong: 'Rubik Iso'
+  fast: 'Ubuntu'
+  hand: 'Caveat'
 ---
 
 # JsShaker
@@ -191,7 +197,7 @@ function concat(arr) {
 
 <div text-sm op-60 mt-18>
 
-Source: [Land ahoy: leaving the Sea of Nodes](https://v8.dev/blog/leaving-the-sea-of-nodes) by the V8 team
+Source: [_Land ahoy: leaving the Sea of Nodes_](https://v8.dev/blog/leaving-the-sea-of-nodes) by the V8 team
 
 </div>
 
@@ -222,18 +228,18 @@ Previous Work{.sect}
 
 ## Prepack
 
-- 由 Facebook 推出，于 2021 年废弃
+由 Facebook 推出，于 2021 年废弃
 
-- 
 
-```mermaid {class:'ml-4 mt--7'}
+
+```mermaid
 graph LR;
 A(原始代码) -->|按照JS标准执行| B(副作用序列) -->|序列化| C(优化后的代码)
 ```
 
-- 
 
-<div ml-5 mt--6 mb-2 flex gap-4>
+
+<div mb-2 flex gap-4>
 
 ```js {*}{lines:false,class:'w-64'}
 for (let a = 1; a < 10; a++) {
@@ -251,8 +257,8 @@ console.log(2);
 
 </div>
 
-- 1. 内部实现过于复杂
-  2. 要求整个运行环境已知，无法实际使用
+1. 内部实现过于复杂
+2. 要求整个运行环境已知，降低了实用性
 
 ---
 
@@ -264,12 +270,37 @@ console.log(2);
 
 ---
 
-# The Goal
+# The Goals
 
-- **High precision**: inter-procedural, context-sensitive and field-sensitive.
+<!-- - **High precision**: inter-procedural, context-sensitive and field-sensitive.
 - **Soundiness**: 在合理的假设下，优化结果是正确的。
 - **Single pass**: 优化是幂等的，只需执行一次。确保使用到全局的所有信息，并保证了优化效率。
-- **Extendability**: 允许解耦地自定义外部函数的行为，提供专门的优化。
+- **Extendability**: 允许解耦地自定义外部函数的行为，提供专门的优化。 -->
+
+<div grid grid-cols-2 gap-6 children:h-34>
+<div border="2 #999999 rounded-lg" px-4 py-2>
+  <div text-xl mb-2> High precision </div>
+  <div class="!children:children:leading-6">
+
+- inter-procedural
+- context-sensitive 
+- field-sensitive
+
+</div>
+</div>
+<div border="2 #999999 rounded-lg" px-4 py-2>
+  <div text-xl mb-2> Soundiness </div>
+  <div> 仅作少数合理假设，<br>保证优化前后程序等价 </div>
+</div>
+<div border="2 #999999 rounded-lg" px-4 py-2>
+  <div text-xl mb-2> Single Pass </div>
+  <div> 优化是幂等的，只需执行一次 </div>
+</div>
+<div border="2 #999999 rounded-lg" px-4 py-2>
+  <div text-xl mb-2> Extendability </div>
+  <div> 允许解耦地自定义外部函数的行为，以提供专门的优化 </div>
+</div>
+</div>
 
 ---
 
@@ -421,7 +452,7 @@ y++;
 
 <div grid grid-cols-5 gap-4>
 
-<div border="2 #999999 rounded-lg" p-2>
+<div border="2 #999999 rounded-lg" p-2 flex flex-col>
   <div text-center> Literal </div>
   <div font-mono text-xs>
   String("abc") <br>
@@ -432,17 +463,25 @@ y++;
   Undefined <br>
   Null <br>
   </div>
+  <div flex-grow />
+  <div text-3 leading-2 op-70>
+    AST-representable
+  </div>
 </div>
 
-<div border="2 #999999 rounded-lg" p-2>
+<div border="2 #999999 rounded-lg" p-2 flex flex-col>
   <div text-center> Primitive </div>
   <div font-mono text-xs>
-  String <br>
-  Number <br>
-  BigInt <br>
-  Boolean <br>
-  Symbol <br>
-  Mixed
+  AnyString <br>
+  AnyNumber <br>
+  AnyBigInt <br>
+  AnyBoolean <br>
+  AnySymbol <br>
+  AnyPrimitive
+  </div>
+  <div flex-grow />
+  <div text-3 leading-2 op-70>
+    non-"Object"
   </div>
 </div>
 
@@ -474,37 +513,25 @@ y++;
 <div flex-grow />
 </div>
 
-</div>
 
-<div grid grid-cols-4 gap-4 mt-4 op-60>
-<div /><div />
+<div flex flex-col gap-2 op-50>
 <div border="2 #999999 rounded-lg" p-2>
   <div text-center> Arguments </div>
 </div>
-<div border="2 #999999 rounded-lg" p-2>
-  <div text-center> Logical Result </div>
+<div relative border="2 #999999 rounded-lg" p-2>
+  <div text-center absolute text-sm w-full mx--2 mt-.5> Logical Result </div>
+  <div text-center invisible> ___ </div>
 </div>
 </div>
+
+</div>
+
 
 复杂度与精确性的权衡
 
 ---
 
-# Object::get_property
-
-```mermaid {scale:0.3}
-graph TB;
-Start((Start)) --> A{isLiteralKey}
-A -->|Yes| C{literalKeyedProperties}
-C -->|Yes| D("getValue")
-C -->|No| E("getUnknownKeyedProperties")
-A -->|No| B("Union[All]")
-
-```
-
----
-
-# The Object Model
+# The Object Value
 
 <style>
 h1 {
@@ -525,7 +552,7 @@ Key Space
 <div text-xs ml-.5 mt--2 mb--2 font-mono font-bold op-60 text-center>
 Literal Keyed
 </div>
-<div v-for="i in 3" border="2 #D55E00 rounded-lg op-60" px-2 h-16 :data-arrow-from="i" font-mono flex items-center justify-center pb-1>
+<div v-for="i in 3" border="2 #D55E00 rounded-lg op-60" px-2 h-16 :data-arrow-from="i" font-mono flex items-center justify-center>
   "key{{i}}"
 </div>
 </div>
@@ -602,72 +629,89 @@ Metadata
 
 ---
 
-## Optimizer{.sect} 死分支消除
+# Object::get_property
 
-<div fixed left-0 top-6>
-<div absolute left-14 top-6>
-<code>cond</code>
-</div>
+```mermaid {scale:0.3}
+graph TB;
+Start((Start)) --> A{isLiteralKey}
+A -->|Yes| C{literalKeyedProperties}
+C -->|Yes| D("getValue")
+C -->|No| E("getUnknownKeyedProperties")
+A -->|No| B("Union[All]")
 
-<div absolute left-14 top-24>
+```
 
-```js {*}{lines:false,class:'w-32'}
+---
+dragPos:
+  a: 64,94,146,76
+  b: 347,305,126,42
+  c: 261,361,128,42
+  d: 445,97,128,60
+  e: 435,180,128,42
+  f: 409,244,128,42
+---
+
+## Optimizer{.sect} Dead Code Elimination
+
+<div v-drag="'a'" data-arrow-from="b c d e f">
+
+```js {*}{lines:false,class:'w-36 z-10'}
 if (cond) A;
 else B;
 ```
 
 </div>
-<div absolute left-80 top-24>
+<div v-drag="'b'" data-arrow-to="b">
 
-```js {*}{lines:false,class:'w-32'}
-if (cond) A;
-else B;
-```
-
-</div>
-<div absolute left-80 top-48>
-
-```js {*}{lines:false,class:'w-32'}
+```js {*}{lines:false,class:'w-36'}
 A;
 ```
 
 </div>
-<div absolute left-80 top-68>
+<div v-drag="'c'" data-arrow-to="c">
 
-```js {*}{lines:false,class:'w-32'}
+```js {*}{lines:false,class:'w-36'}
 B;
 ```
 
 </div>
-<div absolute left-146 top-24>
+<div v-drag="'d'" data-arrow-to="d">
 
-```js {*}{lines:false,class:'w-32'}
+```js {*}{lines:false,class:'w-36'}
 if (cond) A;
 else B;
 ```
 
 </div>
-<div absolute left-146 top-48>
+<div v-drag="'e'" data-arrow-to="e">
 
-```js {*}{lines:false,class:'w-32'}
+```js {*}{lines:false,class:'w-36'}
 if (cond) A;
 ```
 
 </div>
-<div absolute left-146 top-68>
+<div v-drag="'f'" data-arrow-to="f">
 
-```js {*}{lines:false,class:'w-32'}
+```js {*}{lines:false,class:'w-36'}
 if (!cond) B;
 ```
 
 </div>
-</div>
+
+<ArrowConn v-for="id in 'bcdef'" :arrow-id="id" color="#A5A5A5" />
+
+<style scoped>
+:deep(.slidev-code) {
+  --slidev-code-font-size: 16px;
+  --slidev-code-line-height: 1.6;
+}
+</style>
 
 ---
 
-## Optimizer{.sect} 死分支消除
+## Optimizer{.sect} Dead Code Elimination
 
-没有副作用的分支是什么？
+条件真假不确定，还能优化吗？
 
 <div flex gap-8>
 <div>
@@ -682,7 +726,7 @@ function f(cond, callback) {
 }
 
 f(truthyValue, pureFunction);
-f(falsyValue, anyFunction);
+f(falsyValue, anything);
 ```
 
 </div>
@@ -709,12 +753,19 @@ f();
 </div>
 </div>
 
+<style scoped>
+:deep(.slidev-code) {
+  --slidev-code-font-size: 14px;
+  --slidev-code-line-height: 1.4;
+}
+</style>
+
 ---
 
 ## Optimizer{.sect} 死分支消除
 
 <div>
-After the main analysis:
+Post Analysis:
 </div>
 
 ```txt {*}{lines:false}
@@ -740,9 +791,111 @@ while changed:
 
 ### 常量折叠
 
-```js {*}{lines:false}
-const a = 1 + 2;
+当一个节点在运行时只可能出现一种字面量值，就可以将其折叠为字面量值。
+
+而此处的“运行时”是指优化后的运行时，需要考虑死代码消除的影响。比如：
+
+<div flex>
+
+```js {*}{lines:false,class:'w-64'}
+function f(value) {
+  return { data: [[value]] };
+}
+const a = f(1), b = f(2);
+x = a;
 ```
+
+<div i-carbon-arrow-right w-20 text-4xl op-60 mt-4 />
+
+```js {*}{lines:false,class:'w-64'}
+function f() {
+  return { data: [[1]] };
+}
+const a = f();
+x = a;
+```
+
+</div>
+
+只有在 `b` 作为无用代码被删除后，`f` 里的 `value` 才能折叠。
+
+<style scoped>
+:deep(.slidev-code) {
+  --slidev-code-font-size: 14px;
+  --slidev-code-line-height: 1.4;
+}
+</style>
+
+---
+
+### 常量折叠
+
+<div grid grid-cols-3 gap-2>
+
+```mermaid {scale:0.7}
+graph TB;
+A(初始状态) --->|保留的x是字面量| B("折叠为x")
+B -->|保留同样的x| B
+B --->|保留不是x的值| C(不可折叠)
+A --->|保留不是字面量的值| C
+```
+
+<div text-center flex flex-col items-center>
+
+转换为依赖
+
+<carbon-arrow-right w-20 text-5xl op-60 mt-2 />
+
+<div text-sm mt-4 w-fit>
+
+- Foldable(x)
+- NotFoldable
+
+</div>
+
+</div>
+
+```mermaid {scale:0.7}
+graph TB;
+A(初始状态) --->|"Foldable(x)"| B("折叠为x")
+B -->|"Foldable(x)"| B
+B --->|"Foldable(y)"| C(不可折叠)
+A --->|"NotFoldable"| C
+```
+
+</div>
+
+---
+clicks: 1
+---
+
+### 常量折叠
+
+如何删除/保留计算过程？
+
+<div absolute left-20 top-30 transition-all duration-300 delay-300 :class="$clicks === 0 ? 'op-0' : ''">
+
+```mermaid {scale:1}
+graph LR;
+A((Folded)) --->|Value| B("Number(1)")
+A --->|Dep| C(FoldableDep<div style="height: 80px" />)
+```
+
+</div>
+
+<div absolute transition-all duration-600 :class="$clicks === 0 ? 'left-20 top-30' : 'left-76 top-58'" >
+
+```mermaid {scale:1}
+graph LR;
+A((Original)) ---->|Value| B("Number(1)")
+A ---->|Dep| C(（计算过程）)
+```
+
+</div>
+
+---
+
+
 
 ---
 
@@ -753,19 +906,26 @@ const a = 1 + 2;
 Minifier 能完美地重命名变量名，比如：
 
 ```js {*}{lines:false}
-const variableName = { propertyName: 42 };
-log(variableName.propertyName * 2);
+const [[variableName]] = { [[propertyName{3}]]: 42 };
+log([[variableName]].[[propertyName{3}]] * 2);
 ```
 
 输出为：
 
 ```js {*}{lines:false}
-let e={propertyName:42};log(e.propertyName*2)
+let [[e]]={[[propertyName{3}]]:42};log([[e]].[[propertyName{3}]]*2)
 ```
 
-但 `propertyName` 仍是原始的字符串。
+但 <code><span depatom="{3}" color="#B07D48">propertyName</span></code> 仍是原始的字符串。
 
-据估计，属性名约占 Minifier 输出代码体积的 30%。
+据估计，属性名约占 Minifier 输出代码体积的 [30%]{.font-mono.font-bold}。
+
+<style scoped>
+.shiki {
+  --slidev-code-font-size: 14px;
+  --slidev-code-line-height: 1.6;
+}
+</style>
 
 ---
 
@@ -774,61 +934,66 @@ let e={propertyName:42};log(e.propertyName*2)
 [Terser](https://terser.org/) 和 [UglifyJS](https://github.com/mishoo/UglifyJS/) 支持此功能，但无法保证基本的正确性。比如：
 
 ```js {*}{lines:false}
-const obj = { foo: v1, bar: v2 };
-const key = t1 ? "foo" : "bar";
-log(obj.foo, obj[key]);
+const obj = { [[foo{1}]]: v1, [[bar{3}]]: v2 };
+const key = t1 ? "[[foo{1}]]" : "[[bar{3}]]";
+log(obj.[[foo{1}]], obj[key]);
 ```
 
 会被错误地优化为：
 
 ```js {*}{lines:false}
-const obj = { a: v1, b: v2 };
-const key = t1 ? "foo" : "bar";
-log(obj.a, obj[key]);
+const obj = { [[a{1}]]: v1, [[b{3}]]: v2 };
+const key = t1 ? "[[foo{4}]]" : "[[bar{4}]]";
+log(obj.[[a{1}]], obj[key]);
 ```
 
 基于规则的局限性：效果好和正确性不可兼得 {.text-xl}
 
 ---
 
-## Optimizer{.sect} Property Name Mangling
+## [Optimizer ❯  Property Name Mangling]{.sect}
 
-#### VSCode's Typing-based Approach {.my-4}
+### VSCode's Typing-based Approach {.my-4.font-serif}
 
-- 自动调用 TypeScript 提供的**代码重构**功能来重命名属性名
-- 相对安全的属性压缩
-- 缺点：正确性依赖于类型注解的准确性；无法处理第三方库的代码
+- 编写脚本调用 TypeScript 提供的 **代码重构 ❯ 重命名** 功能
+- 优点：用很少的代码实现了很好的效果
+- 缺点：高度依赖类型注解<br>&emsp;&emsp;&emsp;无法处理第三方库的代码
 - 无法用于一般的应用程序
 
-其[官方博客](https://code.visualstudio.com/blogs/2023/07/20/mangling-vscode)指出，这种方式减小了 14% 的体积。
+据[官方博客](https://code.visualstudio.com/blogs/2023/07/20/mangling-vscode)，此项优化节约了 [14%]{.font-bold.font-mono} 的体积。
 
-<img src="./assets/image.png" v-drag="[429,260,337,NaN]" />
+<img src="./assets/ts-rename.png" v-drag="[417,242,348,NaN]" border="2 gray-200 rounded-lg" />
 
 ---
 
 ## Optimizer{.sect} Property Name Mangling
 
-优化的本质是重命名字符串，比如将：
+优化的本质是**重命名字符串**，比如将：
 
 ```js {*}{lines:false}
-const s1 = "hello";
-const s2 = unknown ? "hello" : "world";
+const s1 = "[[hello{1}]]";
+const s2 = unknown ? "[[hello{1}]]" : "[[world{3}]]";
 console.log(s1 === s2);
 ```
 
 优化为：
 
 ```js {*}{lines:false}
-const s1 = "a";
-const s2 = unknown ? "a" : "b";
+const s1 = "[[a{1}]]";
+const s2 = unknown ? "[[a{1}]]" : "[[b{3}]]";
 console.log(s1 === s2);
 ```
 
+为什么可以优化？因为有意义的是相等性，而非字符串本身。
+
 ---
 class: Execution
+zoom: 0.9
 ---
 
 ## Optimizer{.sect} Property Name Mangling
+
+<div h-1 />
 
 ```js {1|2|3}
 const a = "[[hello]]";
@@ -848,10 +1013,16 @@ const c = a === b;
 
 </v-clicks>
 
-<div text-red v-drag="[385,333,143,NaN]" font-bold bg-red-100 px-4 py-2 leading-8 v-click="3">
+<div text-red v-drag="[473,340,143,NaN]" font-bold bg-red-100 px-4 py-2 leading-8 v-click="3">
 Not <Deps><code>a</code>,<code>c<sub>1</sub></code></Deps> <br>
 Not <Deps><code>a</code>,<code>c<sub>2</sub></code></Deps>
 </div>
+
+<style scoped>
+:deep(.rough-annotation) {
+  transform: scale(calc(1 / 0.9 / var(--slidev-slide-scale)));
+}
+</style>
 
 ---
 
@@ -872,11 +1043,26 @@ Possible dependencies for this optimization:
 
 How to resolve?
 
-<div class="slidev-code !text-0.9rem">
+<!-- <div class="slidev-code !text-0.9rem">
 EqualityGroups
 UniquenessGroups
 for each <span text-dep>dep</span> in 
-</div>
+</div> 
+
+atomStates = { * -> any }
+uniquenessGroups = []
+identityGroups = []
+
+for each C in all constraints:
+  if C is NOMANGLE(A):
+    atomStates[A] -> NOMANGLE
+  else if C is EQUAL(A,B):
+    if atomStates[A] is NOMANGLE:
+      atomSta
+  else if C is <span text-dep>NOMANGLE</span>:
+    atomStates[C.atom] = C.atom
+-->
+
 
 ---
 

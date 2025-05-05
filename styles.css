@@ -1,3 +1,7 @@
+/* h1 {
+  --uno: font-serif;
+} */
+
 .sect {
   color: #5d8392;
   --uno: text-2xl;
@@ -17,7 +21,10 @@
 }
 
 :root {
-  --dep-atom-color: rgb(16, 123, 165);
+  --dep-atom-color: #107ba5CC;
+  --dep-atom-color-2:rgba(228, 111, 72, 0.8);
+  --dep-atom-color-3: #259117CC;
+  --dep-atom-color-4:rgba(224, 4, 0, 0.8);
 }
 
 .Execution {
@@ -28,12 +35,6 @@
   --slidev-code-line-height: 2;
 }
 
-[DepAtom] {
-  outline: 2px solid var(--dep-atom-color);
-  outline-offset: 0px;
-  position: relative;
-}
-
 [DepAtom]::before {
   counter-increment: DepAtom;
   content: counter(DepAtom);
@@ -42,7 +43,7 @@
   left: 0rem;
   right: 0rem;
   text-align: center;
-  bottom: calc(100% - 0.4rem);
+  bottom: calc(100% - 6px);
   font-size: 0.9rem;
   font-weight: 600;
   /* width: 1rem;
@@ -72,6 +73,24 @@ code:not(.shiki *) {
   padding-left: 0.2rem !important;
   padding-right: 0.2rem !important;
 }
+}
+
+[DepAtom] {
+  outline: 1.5px solid var(--dep-atom-color);
+  outline-offset: 0px;
+  position: relative;
+}
+
+[DepAtom="{2}"] {
+  outline-color: var(--dep-atom-color-2) !important;
+}
+
+[DepAtom="{3}"] {
+  outline-color: var(--dep-atom-color-3) !important;
+}
+
+[DepAtom="{4}"] {
+  outline-color: var(--dep-atom-color-4) !important;
 }
 
 .text-dep, [text-dep] {
