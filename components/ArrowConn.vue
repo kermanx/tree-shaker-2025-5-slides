@@ -1,6 +1,6 @@
 <template>
   <Teleport to="body">
-    <svg :style="svgStyle" v-show="isActive">
+    <svg :style="svgStyle" v-show="isActive || nav.isPrintMode.value">
       <defs>
         <marker :id="markerId" markerWidth="10" markerHeight="7" refX="8" refY="3.5" orient="auto-start-reverse">
           <polygon points="0 0, 10 3.5, 0 7" :fill="color" />
@@ -16,10 +16,11 @@
 <script setup>
 import { ref, reactive, onMounted, onUnmounted, computed, watch } from 'vue';
 import { debounce, transform } from 'lodash-es'; // Use lodash for debouncing
-import { useIsSlideActive, useSlideContext } from '@slidev/client'
+import { useIsSlideActive, useNav, useSlideContext } from '@slidev/client'
 
 const isActive = useIsSlideActive()
 const context = useSlideContext()
+const nav = useNav()
 
 
 // --- Props ---

@@ -29,8 +29,10 @@
 
 .Execution {
 
-.shiki {
+  
   counter-reset: DepAtom;
+
+.shiki {
   --slidev-code-font-size: 18px;
   --slidev-code-line-height: 2;
 }

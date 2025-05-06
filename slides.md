@@ -262,11 +262,23 @@ console.log(2);
 
 ---
 
-改进：
+# 改进
 
-- 做抽象：不拘泥于标准，按照直观的 JS 语义分析代码
+### 抽象
 
-- 直接分析 AST 节点的使用情况，而不是收集和序列化副作用
+不拘泥于标准，按照直观的 JS 语义分析代码
+
+<carbon-arrow-right /> 提高了分析的“性价比”
+
+<div h-4 />
+
+### 直接变换
+
+直接分析 AST 节点的使用情况，并变换代码
+
+而不是收集副作用列表再序列化
+
+<carbon-arrow-right /> 实现更简单；优化代码体积可控
 
 ---
 
@@ -279,7 +291,7 @@ console.log(2);
 
 <div grid grid-cols-2 gap-6 children:h-34>
 <div border="2 #999999 rounded-lg" px-4 py-2>
-  <div text-xl mb-2> High precision </div>
+  <div text-xl mb-2 font-serif> High precision </div>
   <div class="!children:children:leading-6">
 
 - inter-procedural
@@ -289,15 +301,15 @@ console.log(2);
 </div>
 </div>
 <div border="2 #999999 rounded-lg" px-4 py-2>
-  <div text-xl mb-2> Soundiness </div>
+  <div text-xl mb-2 font-serif> Soundiness </div>
   <div> 仅作少数合理假设，<br>保证优化前后程序等价 </div>
 </div>
 <div border="2 #999999 rounded-lg" px-4 py-2>
-  <div text-xl mb-2> Single Pass </div>
+  <div text-xl mb-2 font-serif> Single Pass </div>
   <div> 优化是幂等的，只需执行一次 </div>
 </div>
 <div border="2 #999999 rounded-lg" px-4 py-2>
-  <div text-xl mb-2> Extendability </div>
+  <div text-xl mb-2 font-serif> Extendability </div>
   <div> 允许解耦地自定义外部函数的行为，以提供专门的优化 </div>
 </div>
 </div>
@@ -330,11 +342,11 @@ add([[1]], [[2]]);
 
 <v-clicks at="1">
 
-- <Dep>add</Dep>
+- The <Dep>add</Dep> function call
 
 </v-clicks>
 
-### Expressions
+### Expressions <div float-right text-sm mt-3 op-60 font-serif font-bold> Dependencies </div>
 
 <v-clicks at="0">
 
@@ -359,7 +371,7 @@ class: Execution
 
 ```js {1|2|3|4}
 let [[x]] = 1;
-if (a)
+if (unknown)
   x++;
 console.log(x);
 ```
@@ -370,11 +382,11 @@ console.log(x);
 
 <div v-click="[2,3]">
 
-- `a` is truthy
+- `unknown` is truthy [*covered later]{.op-60.text-xs.italic}
 
 </div>
 
-### Expressions
+### Expressions <div float-right text-sm mt-3 op-60 font-serif font-bold> Dependencies </div>
 
 <v-clicks at="0">
 
@@ -428,10 +440,12 @@ y++;
 
 ---
 
+## Analyzer{.sect} 乱序
+
+<div h-2 />
+
 - **Drain**：每当自己写入了自己先前的依赖，就重新分析
 - **Callback**：自己执行完后，对它的依赖的写入也需要触发重新分析
-
-<div h-4 />
 
 | **Kind** | **Drain** | **Callback** |
 | ---- | ---- | ---- |
@@ -464,7 +478,7 @@ y++;
   Null <br>
   </div>
   <div flex-grow />
-  <div text-3 leading-2 op-70>
+  <div text-3 leading-2 op-50 italic font-serif>
     AST-representable
   </div>
 </div>
@@ -480,7 +494,7 @@ y++;
   AnyPrimitive
   </div>
   <div flex-grow />
-  <div text-3 leading-2 op-70>
+  <div text-3 leading-2 op-50 italic font-serif>
     non-"Object"
   </div>
 </div>
@@ -643,12 +657,13 @@ A -->|No| B("Union[All]")
 
 ---
 dragPos:
-  a: 64,94,146,76
-  b: 347,305,126,42
-  c: 261,361,128,42
-  d: 445,97,128,60
-  e: 435,180,128,42
-  f: 409,244,128,42
+  a: 54,94,146,56
+  b: 327,305,126,42
+  c: 241,361,128,42
+  d: 425,97,128,60
+  e: 415,180,128,42
+  f: 389,244,128,42
+  x: 561,272,263,136
 ---
 
 ## Optimizer{.sect} Dead Code Elimination
@@ -700,12 +715,19 @@ if (!cond) B;
 
 <ArrowConn v-for="id in 'bcdef'" :arrow-id="id" color="#A5A5A5" />
 
-<style scoped>
-:deep(.slidev-code) {
-  --slidev-code-font-size: 16px;
-  --slidev-code-line-height: 1.6;
-}
-</style>
+<div v-drag="'x'" text-sm>
+
+<div>
+Other Conditional Nodes
+</div>
+
+- `a ? b : c`
+- `a && b`, `a || b`, `a ?? b`
+- `const [x = 1] = a`
+- `([x = 1] = a)`
+- `function (x = 1) {}`
+
+</div>
 
 ---
 
@@ -761,10 +783,62 @@ f();
 </style>
 
 ---
+class: Execution
+---
 
-## Optimizer{.sect} 死分支消除
+## Optimizer{.sect} Dead Code Elimination
 
+```js {none}{class:'w-48', lines:false}
+if (unknown)
+  [[...]]
+else
+  [[...]]  
+```
+
+
+```js {none}{class:'w-48', lines:false}
+if (truthy)
+  [[...]]
+else
+  [[...]]  
+```
+
+<div v-drag="[300,80,321,26]" font-serif font-bold>
+Execution Dependency
+</div>
+
+
+<div v-drag="[300,110,399,NaN]" text-sm leading-4 font-mono>
+BranchDep (<br>
+&emsp;consequent branch is impure,<br>
+&emsp;both branches are possible<br>)
+</div>
+
+<div v-drag="[300,188,436,NaN]" text-sm leading-4 font-mono>
+BranchDep (<br>
+&emsp;alternate branch is impure,<br>
+&emsp;both branches are possible<br>)
+</div>
+
+
+<div v-drag="[300,272,436,NaN]" text-sm leading-4 font-mono>
+BranchDep (<br>
+&emsp;consequent branch is impure,<br>
+&emsp;only consequent branches are possible<br>)
+</div>
+
+<div v-drag="[300,373,436,NaN]" text-sm leading-4 font-mono italic>
+*never analyzed
+</div>
+
+---
+
+## Optimizer{.sect} Dead Code Elimination
+
+<div flex gap-4>
 <div>
+
+<div text-sm font-bold>
 Post Analysis:
 </div>
 
@@ -786,6 +860,35 @@ while changed:
       remove N from nodeWorkList
       changed = true
 ```
+
+</div>
+<div>
+
+<div text-sm font-bold>
+Transformation:
+</div>
+
+```txt {*}{lines:false}
+for conditional node N:
+  p1 = N's consequent is possible
+  p2 = N's alternate is possible
+  if p1 and p2:
+    transform test with value preserved
+  else:
+    transform test side-effects only
+  if p1:
+    transform consequent
+  else
+    consequent is dead
+  if has alternate branch:
+    if p2:
+      transform alternate
+    else:
+      alternate is dead
+```
+
+</div>
+</div>
 
 ---
 
@@ -830,7 +933,7 @@ x = a;
 
 ### 常量折叠
 
-<div grid grid-cols-3 gap-2>
+<div flex>
 
 ```mermaid {scale:0.7}
 graph TB;
@@ -840,16 +943,16 @@ B --->|保留不是x的值| C(不可折叠)
 A --->|保留不是字面量的值| C
 ```
 
-<div text-center flex flex-col items-center>
+<div text-center flex flex-col items-center ml-8 mr-4>
 
 转换为依赖
 
-<carbon-arrow-right w-20 text-5xl op-60 mt-2 />
+<carbon-arrow-right text-5xl op-60 mt-2 />
 
 <div text-sm mt-4 w-fit>
 
-- Foldable(x)
-- NotFoldable
+- FoldableDep(x)
+- NotFoldableDep
 
 </div>
 
@@ -857,10 +960,10 @@ A --->|保留不是字面量的值| C
 
 ```mermaid {scale:0.7}
 graph TB;
-A(初始状态) --->|"Foldable(x)"| B("折叠为x")
-B -->|"Foldable(x)"| B
-B --->|"Foldable(y)"| C(不可折叠)
-A --->|"NotFoldable"| C
+A(初始状态) --->|"FoldableDep(x)"| B("折叠为x")
+B -->|"FoldableDep(x)"| B
+B --->|"FoldableDep(y)"| C(不可折叠)
+A --->|"NotFoldableDep"| C
 ```
 
 </div>
@@ -871,9 +974,9 @@ clicks: 1
 
 ### 常量折叠
 
-如何删除/保留计算过程？
+如何删除计算过程？
 
-<div absolute left-20 top-30 transition-all duration-300 delay-300 :class="$clicks === 0 ? 'op-0' : ''">
+<div absolute left-14 top-30 transition-all duration-300 delay-300 :class="$clicks === 0 ? 'op-0' : ''">
 
 ```mermaid {scale:1}
 graph LR;
@@ -883,13 +986,21 @@ A --->|Dep| C(FoldableDep<div style="height: 80px" />)
 
 </div>
 
-<div absolute transition-all duration-600 :class="$clicks === 0 ? 'left-20 top-30' : 'left-76 top-58'" >
+<div absolute transition-all duration-600 :class="$clicks === 0 ? 'left-14 top-30' : 'left-70 top-58'" >
 
 ```mermaid {scale:1}
 graph LR;
 A((Original)) ---->|Value| B("Number(1)")
 A ---->|Dep| C(（计算过程）)
 ```
+
+</div>
+
+<div v-drag="[422,94,343,NaN]" px-2 py-1 border="2 dashed #999999 rounded-lg" transition-all duration-200 delay-600 :class="$clicks === 0 ? 'op-0' : ''">
+
+1. 更新常量折叠状态
+2. 将原始 Entity 存入列表
+3. [(Post-analysis)]{.text-xs.op-80} 若无法折叠，消耗整个列表
 
 </div>
 
