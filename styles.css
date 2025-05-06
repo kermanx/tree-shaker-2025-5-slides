@@ -22,9 +22,9 @@
 
 :root {
   --dep-atom-color: #107ba5CC;
-  --dep-atom-color-2:rgba(228, 111, 72, 0.8);
+  --dep-atom-color-2: #e46f48CC;
   --dep-atom-color-3: #259117CC;
-  --dep-atom-color-4:rgba(224, 4, 0, 0.8);
+  --dep-atom-color-4: #e00400CC;
 }
 
 .Execution {

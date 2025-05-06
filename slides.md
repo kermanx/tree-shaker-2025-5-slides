@@ -21,7 +21,7 @@ fonts:
 
 ---
 
-# Motivations
+# Background
 
 ```mermaid
 graph LR;
@@ -31,8 +31,12 @@ A --> E(节约带宽) ---> D
 ```
 
 - HTML/CSS/Media: 压缩技术成熟
-- JS: **体积大，阻塞加载⭐**
+- JS: **体积大，阻塞加载，有较多无效代码**
 
+<!--
+- 实证数据
+- HTML 行数
+-->
 
 ---
 dragPos:
@@ -116,6 +120,18 @@ Gzip，编程语言无关，减小传输体积
 }
 </style>
 
+<!--
+- 简单到复杂
+
+Minifier: 按照语法结构
+"Minifier" 来源: link
+
+1. 分析的复杂度：Syntax Level < Semantic Level
+2. 实际做优化：JavaScript code size != 一般的程序分析
+
+Background and Motvation
+-->
+
 ---
 
 # Why Hard?
@@ -170,15 +186,20 @@ const sigmoid = cache(
   x => 1 / (1 + Math.exp(-x))
 );
 
-// WTF?
+// Impossible to track
 setTimeout(sigmoid, 1000, 1);
 ```
 
 </div>
 </div>
 
----
+<!--
+英才班：具代表性的
 
+实证分析的文章 -> 数据：特征的使用的情况
+-->
+
+---
 
 # Why Hard?
 
@@ -209,18 +230,32 @@ Source: [_Land ahoy: leaving the Sea of Nodes_](https://v8.dev/blog/leaving-the-
 }
 </style>
 
+<!--
+英才班/论文：不需要这一张
+-->
+
 ---
 
-# Previous Work
+Previous Work{.sect}
+
+<div text-2xl mt--1 pb-2>
 
 [Rollup](https://rollupjs.org/), [Terser](https://terser.org/), [UglifyJS](https://github.com/mishoo/UglifyJS/), [Google Closure Compiler](https://github.com/google/closure-compiler)
 
-缺陷：
+</div>
+
+<div text-xl mb-2>
+不足：
+</div>
 
 - 基于规则，多 pass
 - 缺少对象属性的重命名
 - 高级优化要求所有的函数和对象都已知
 - 可拓展性弱
+
+<!--
+时间
+-->
 
 ---
 
@@ -278,7 +313,20 @@ console.log(2);
 
 而不是收集副作用列表再序列化
 
-<carbon-arrow-right /> 实现更简单；优化代码体积可控
+<carbon-arrow-right /> 实现更简单；优化后代码体积可控
+
+---
+
+# Tree-shaking
+
+<div />
+
+[*Tree-shaking versus dead code elimination* by Rich Harris, 2015](https://medium.com/@Rich_Harris/tree-shaking-versus-dead-code-elimination-d3765df85c80){.op-80.text-xs}
+
+| Tree-shaking | 先假定所有代码无用，通过分析来褪优化其中有用的部分 <div op-80> "Include live code" </div> |
+| - | - |
+| DCE | 反复应用一组规则去删除无用代码 <div op-80> "Exclude dead code" </div> |
+| Prepack etc. | 记录副作用再重新生成等效代码 <div op-80> "Rebuild the program" </div> |
 
 ---
 
@@ -324,7 +372,7 @@ console.log(2);
 class: Execution
 ---
 
-## Analyzer{.sect} 顺序执行
+## Analyzer{.sect} 顺序
 
 <div grid grid-cols-2 gap-4>
 
@@ -466,7 +514,7 @@ y++;
 
 <div grid grid-cols-5 gap-4>
 
-<div border="2 #999999 rounded-lg" p-2 flex flex-col>
+<div border="2 #107ba5 rounded-lg" p-2 flex flex-col>
   <div text-center> Literal </div>
   <div font-mono text-xs>
   String("abc") <br>
@@ -478,12 +526,12 @@ y++;
   Null <br>
   </div>
   <div flex-grow />
-  <div text-3 leading-2 op-50 italic font-serif>
+  <div text-3 leading-2 op-70 italic font-serif>
     AST-representable
   </div>
 </div>
 
-<div border="2 #999999 rounded-lg" p-2 flex flex-col>
+<div border="2 #107ba5 rounded-lg" p-2 flex flex-col>
   <div text-center> Primitive </div>
   <div font-mono text-xs>
   AnyString <br>
@@ -494,34 +542,34 @@ y++;
   AnyPrimitive
   </div>
   <div flex-grow />
-  <div text-3 leading-2 op-50 italic font-serif>
+  <div text-3 leading-2 op-70 italic font-serif>
     non-"Object"
   </div>
 </div>
 
 <div flex flex-col gap-2>
-<div border="2 #999999 rounded-lg" p-2>
+<div border="2 #259117 rounded-lg" p-2>
   <div text-center> Object </div>
 </div>
-<div border="2 #999999 rounded-lg" p-2>
+<div border="2 #259117 rounded-lg" p-2>
   <div text-center> Array </div>
 </div>
-<div border="2 #999999 rounded-lg" p-2>
+<div border="2 #259117 rounded-lg" p-2>
   <div text-center> Function </div>
 </div>
-<div border="2 #999999 rounded-lg" p-2>
+<div border="2 #259117 rounded-lg" p-2>
   <div text-center> React VNode </div>
 </div>
 </div>
 
 <div flex flex-col gap-2>
-<div border="2 #999999 rounded-lg" p-2>
+<div border="2 #e46f48 rounded-lg" p-2>
   <div text-center> ⊤ Unknown </div>
 </div>
-<div border="2 #999999 rounded-lg" p-2>
+<div border="2 #e46f48 rounded-lg" p-2>
   <div text-center> ∪ Union </div>
 </div>
-<div border="2 #999999 rounded-lg" p-2>
+<div border="2 #e46f48 rounded-lg" p-2>
   <div text-center> ⊥ Never </div>
 </div>
 <div flex-grow />
@@ -642,6 +690,8 @@ Metadata
 
 
 ---
+hide: true
+---
 
 # Object::get_property
 
@@ -654,6 +704,33 @@ C -->|No| E("getUnknownKeyedProperties")
 A -->|No| B("Union[All]")
 
 ```
+
+---
+
+# Optimizations
+
+<div />
+
+<div grid grid-cols-2 gap-8>
+<div>
+
+相互解耦的各项优化：
+
+- Dead Code Elimination
+- Constant Folding
+- Property Name Mangling
+- React.js Optimizations
+- ... [(extendable)]{.text-sm.op-70.font-serif.italic}
+
+</div>
+<div pt-18>
+
+- 定义新的 Dependency 种类
+- 定义内置函数的（抽象）实现
+- 自定义某些节点的分析和转换
+
+</div>
+</div>
 
 ---
 dragPos:
@@ -824,7 +901,7 @@ BranchDep (<br>
 <div v-drag="[300,272,436,NaN]" text-sm leading-4 font-mono>
 BranchDep (<br>
 &emsp;consequent branch is impure,<br>
-&emsp;only consequent branches are possible<br>)
+&emsp;only the consequent branch is possible<br>)
 </div>
 
 <div v-drag="[300,373,436,NaN]" text-sm leading-4 font-mono italic>
@@ -892,7 +969,7 @@ for conditional node N:
 
 ---
 
-### 常量折叠
+## Optimizer{.sect} Constant Folding
 
 当一个节点在运行时只可能出现一种字面量值，就可以将其折叠为字面量值。
 
@@ -931,9 +1008,9 @@ x = a;
 
 ---
 
-### 常量折叠
+## Optimizer{.sect} Constant Folding
 
-<div flex>
+<div flex mt-4>
 
 ```mermaid {scale:0.7}
 graph TB;
@@ -945,7 +1022,7 @@ A --->|保留不是字面量的值| C
 
 <div text-center flex flex-col items-center ml-8 mr-4>
 
-转换为依赖
+使用依赖追踪
 
 <carbon-arrow-right text-5xl op-60 mt-2 />
 
@@ -972,7 +1049,7 @@ A --->|"NotFoldableDep"| C
 clicks: 1
 ---
 
-### 常量折叠
+## Optimizer{.sect} Constant Folding
 
 如何删除计算过程？
 
@@ -996,38 +1073,36 @@ A ---->|Dep| C(（计算过程）)
 
 </div>
 
-<div v-drag="[422,94,343,NaN]" px-2 py-1 border="2 dashed #999999 rounded-lg" transition-all duration-200 delay-600 :class="$clicks === 0 ? 'op-0' : ''">
+<div v-drag="[415,93,350,NaN]" px-2 py-1 border="2 dashed #999999 rounded-lg" transition-all duration-200 delay-600 :class="$clicks === 0 ? 'op-0' : ''">
 
 1. 更新常量折叠状态
 2. 将原始 Entity 存入列表
-3. [(Post-analysis)]{.text-xs.op-80} 若无法折叠，消耗整个列表
+3. [(post-analysis)]{.text-xs.op-80.font-serif} 若无法折叠，消耗整个列表
 
 </div>
 
----
-
-
+<img src="./assets/CurveArrow.svg" v-drag="[378,175,20,NaN,226]" transition-all duration-200 delay-600 :class="$clicks === 0 ? 'op-0' : 'op-60'" />
 
 ---
 
-## Optimizer{.sect} Property Name Mangling
+### Optimizer{.sect} Property Name Mangling
 
 <div />
 
-Minifier 能完美地重命名变量名，比如：
+现有的 Minifier 能完美地重命名变量名，比如：
 
 ```js {*}{lines:false}
-const [[variableName]] = { [[propertyName{3}]]: 42 };
-log([[variableName]].[[propertyName{3}]] * 2);
+const [[variableName]] = { propertyName: 42 };
+log([[variableName]].propertyName * 2);
 ```
 
 输出为：
 
 ```js {*}{lines:false}
-let [[e]]={[[propertyName{3}]]:42};log([[e]].[[propertyName{3}]]*2)
+let [[e]]={propertyName:42};log([[e]].propertyName*2)
 ```
 
-但 <code><span depatom="{3}" color="#B07D48">propertyName</span></code> 仍是原始的字符串。
+但 <code><span color="#B07D48">propertyName</span></code> 仍是原始的字符串。
 
 据估计，属性名约占 Minifier 输出代码体积的 [30%]{.font-mono.font-bold}。
 
@@ -1040,7 +1115,7 @@ let [[e]]={[[propertyName{3}]]:42};log([[e]].[[propertyName{3}]]*2)
 
 ---
 
-## Optimizer{.sect} Property Name Mangling
+### Optimizer{.sect} Property Name Mangling
 
 [Terser](https://terser.org/) 和 [UglifyJS](https://github.com/mishoo/UglifyJS/) 支持此功能，但无法保证基本的正确性。比如：
 
@@ -1062,7 +1137,7 @@ log(obj.[[a{1}]], obj[key]);
 
 ---
 
-## [Optimizer ❯  Property Name Mangling]{.sect}
+### Optimizer{.sect} Property Name Mangling
 
 ### VSCode's Typing-based Approach {.my-4.font-serif}
 
@@ -1077,7 +1152,7 @@ log(obj.[[a{1}]], obj[key]);
 
 ---
 
-## Optimizer{.sect} Property Name Mangling
+### Optimizer{.sect} Property Name Mangling
 
 优化的本质是**重命名字符串**，比如将：
 
@@ -1102,7 +1177,7 @@ class: Execution
 zoom: 0.9
 ---
 
-## Optimizer{.sect} Property Name Mangling
+### Optimizer{.sect} Property Name Mangling
 
 <div h-1 />
 
@@ -1137,9 +1212,9 @@ Not <Deps><code>a</code>,<code>c<sub>2</sub></code></Deps>
 
 ---
 
-## Optimizer{.sect} Property Name Mangling
+### Optimizer{.sect} Property Name Mangling
 
-Possible dependencies for this optimization:
+The dependencies (**constraints**) are:
 
 | | |
 | ---- | ---- |
@@ -1150,9 +1225,17 @@ Possible dependencies for this optimization:
 
 ---
 
-## Optimizer{.sect} Property Name Mangling
+### Optimizer{.sect} Property Name Mangling
 
 How to resolve?
+
+- Identity Groups
+- Uniqueness Groups
+- Atom States
+  - Constrained[(Optional<IdentityGroupId>, Set<UniquenessGroupId>)]{.font-mono.text-xs}：被约束的字符串
+  - Constant[(String)]{.font-mono.text-sm}：已解析为最终值的字符串
+  - NonMangable：对应的 AST 节点不可重命名
+  - Preserved：JS 内置的字符串，无对应 AST 节点
 
 <!-- <div class="slidev-code !text-0.9rem">
 EqualityGroups
@@ -1250,6 +1333,38 @@ table {
   --uno: font-bold;
 }
 :deep(td:nth-child(2)) {
+  --uno: font-bold;
+}
+</style>
+
+---
+
+# Evaluation
+
+Some real-world applications:
+
+| Name  | Description | Saved |
+| - | - | - |
+| NoVNC | No external library used | 20% |
+| Guitar Studio | React + geist-ui | 20% |
+| Calendar | React + Ant-design | 15% |
+| Volar VSCode Extension | Super complex | &nbsp;8% |
+| ZVMS | Vue + Element-plus  | &nbsp;3% |
+
+<style scoped>
+table {
+  --uno: text-sm mt--2;
+}
+:deep(td) {
+  padding: 0 0.5rem !important;  
+}
+:deep(td:not(:first-child)) {
+  --uno: font-mono;
+}
+:deep(td:first-child) {
+  --uno: font-bold;
+}
+:deep(td:nth-child(3)) {
   --uno: font-bold;
 }
 </style>
